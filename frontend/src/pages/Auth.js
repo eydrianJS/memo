@@ -1,17 +1,20 @@
-import React from "react";
+import React, {useContext, useState, createRef}from "react";
 import TextField from "@material-ui/core/TextField";
 import Container from "@material-ui/core/Container";
 import { ThemeProvider } from "@material-ui/styles";
 import Button from "@material-ui/core/Button";
 import { theme, useStyles } from "../styles/AuthStyles";
+import AuthContext from '../context/auth-context';
 
 const Auth = () => {
   const classes = useStyles();
-  let emailEl = React.createRef();
-  let passwordEl = React.createRef();
+  let emailEl = createRef();
+  let passwordEl = createRef();
 
-  const [isLogin, setIsLogin] = React.useState(false);
-  const [values, setValues] = React.useState({
+  const context = useContext(AuthContext);
+
+  const [isLogin, setIsLogin] = useState(false);
+  const [values, setValues] = useState({
     email: "",
     password: ""
   });
@@ -95,8 +98,11 @@ const Auth = () => {
         return res.json();
       })
       .then(data => {
-        setIsLogin(true);
-        console.log(data);
+        if (data.data.login.token) {
+          setIsLogin(true);
+          context.login(data.data.login.token, data.data.login.userId, data.data.login.tokenExpiration);
+          console.log(data);
+        }
       })
       .catch(err => {
         setIsLogin(false);
