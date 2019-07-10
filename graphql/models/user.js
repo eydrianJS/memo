@@ -16,6 +16,12 @@ const userSchema = new Schema( {
             type: Schema.Types.ObjectId,
             ref: 'Word'
         }
+    ],
+    scores: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Score'
+        }
     ]
 })
 

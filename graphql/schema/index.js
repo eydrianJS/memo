@@ -6,6 +6,7 @@ module.exports = buildSchema(`
         email: String!
         password: String
         createdWords: [Word!]
+        scores: [Score!]
     }
 
     type AuthData {
@@ -23,6 +24,20 @@ module.exports = buildSchema(`
         creator: User!
     }
 
+    type Score {
+        _id: ID!
+        gameSize: Int!
+        level: String!
+        time: String!
+        championer: User!
+    }
+
+    input ScoreInput {
+        gameSize: Int!
+        level: String!
+        time: String!
+    }
+
     input WordInput {
         polishWord: String!
         englishWord: String!
@@ -38,11 +53,13 @@ module.exports = buildSchema(`
     type RootQuery {
         login(email: String!, password: String!): AuthData!
         words: [Word!]!
+        scores: [Score!]!
     }
 
     type RootMutation {
         createUser(userInput: UserInput): User
         createWord(wordInput: WordInput): Word
+        createScore(scoreInput: ScoreInput): Score
     }
 
     schema {
