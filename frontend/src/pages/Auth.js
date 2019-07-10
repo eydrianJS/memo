@@ -7,14 +7,101 @@ import { theme, useStyles } from "../styles/AuthStyles";
 
 const Auth = () => {
   const classes = useStyles();
+  let emailEl = React.createRef();
+  let passwordEl = React.createRef();
 
+  const [isLogin, setIsLogin] = React.useState(false);
   const [values, setValues] = React.useState({
     email: "",
-    age: ""
+    password: ""
   });
 
   const handleChange = name => event => {
     setValues({ ...values, [name]: event.target.value });
+  };
+
+  const handleSubmit = () => {
+    const email = emailEl.current.value;
+    const password = passwordEl.current.value;
+
+    if (email.trim().length === 0 && password.trim().length) {
+      return;
+    }
+
+    const requestBody = {
+      query: `
+        mutation {
+          createUser( userInput: {
+            email: "${email}",
+            password: "${password}"
+          }) {
+            _id
+            email
+          }
+        }
+      `
+    };
+
+    fetch("http://localhost:8000/graphql", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error("Failed");
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log(data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
+  const handleLogin = () => {
+    const email = emailEl.current.value;
+    const password = passwordEl.current.value;
+
+    if (email.trim().length === 0 && password.trim().length) {
+      return;
+    }
+
+    const requestBody = {
+      query: `
+        query {
+          login( email: "${email}", password: "${password}") {
+              token
+          }
+        }
+      `      
+    };
+
+    fetch("http://localhost:8000/graphql", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error("Failed");
+        }
+        return res.json();
+      })
+      .then(data => {
+        setIsLogin(true);
+        console.log(data);
+      })
+      .catch(err => {
+        setIsLogin(false);
+        console.log(err);
+      });
   };
 
   return (
@@ -26,6 +113,7 @@ const Auth = () => {
           className={classes.textField}
           value={values.email}
           onChange={handleChange("email")}
+          inputRef={emailEl}
           type="email"
           name="email"
           autoComplete="email"
@@ -38,6 +126,7 @@ const Auth = () => {
           label="Password"
           className={classes.textField}
           value={values.password}
+          inputRef={passwordEl}
           onChange={handleChange("password")}
           type="password"
           autoComplete="current-password"
@@ -45,20 +134,22 @@ const Auth = () => {
           variant="outlined"
           fullWidth
         />
-        <ThemeProvider theme={theme} >
+        <ThemeProvider theme={theme}>
           <Button
             variant="contained"
             color="primary"
             className={classes.margin}
+            onClick={handleSubmit}
           >
-            Submit
+            SingUp
           </Button>
           <Button
             variant="contained"
             color="primary"
             className={classes.margin}
+            onClick={handleLogin}
           >
-            Switch to Singup
+            Switch to {isLogin? 'Logout': 'Login'}
           </Button>
         </ThemeProvider>
       </form>
